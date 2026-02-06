@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlantWorld - Admin Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 260px;
+            height: 100vh;
+            background: linear-gradient(180deg, #2d5016 0%, #1a3009 100%);
+            color: white;
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            background: rgba(0,0,0,0.2);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-top: 0.3rem;
+        }
+
+        .sidebar-menu {
+            padding: 1rem 0;
+        }
+
+        .menu-item {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            border-left: 3px solid transparent;
+        }
+
+        .menu-item:hover {
+            background: rgba(255,255,255,0.1);
+            border-left-color: #66aa44;
+        }
+
+        .menu-item.active {
+            background: rgba(255,255,255,0.15);
+            border-left-color: #66aa44;
+        }
+
+        .menu-icon {
+            font-size: 1.2rem;
+            width: 25px;
+        }
+
+        .badge {
+            margin-left: auto;
+            background: #ff4444;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .top-header {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-title {
+            font-size: 1.8rem;
+            color: #2d5016;
+            font-weight: bold;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4a7c2c, #2d5016);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(74, 124, 44, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #2d5016;
+            border: 2px solid #4a7c2c;
+        }
+
+        .btn-danger {
+            background: #ff4444;
+            color: white;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #4a7c2c, #2d5016);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .stat-icon.blue { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .stat-icon.green { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .stat-icon.orange { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .stat-icon.purple { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+
+        .stat-info h3 {
+            font-size: 1.8rem;
+            color: #2d5016;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-info p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .stat-change {
+            margin-left: auto;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .stat-change.up {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .stat-change.down {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        /* Table Styles */
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .search-box {
+            padding: 0.7rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            width: 300px;
+            font-size: 1rem;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #4a7c2c;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f5f5f5;
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #2d5016;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .product-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .product-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .status-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-badge.published {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-badge.draft {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .status-badge.pending {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .status-badge.processing {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-badge.completed {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-badge.cancelled {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            padding: 0.4rem 0.8rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .action-btn.edit {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .action-btn.delete {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .action-btn.view {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            border-radius: 15px;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            background: #f5f5f5;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: #2d5016;
+            font-weight: bold;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4a7c2c;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            background: #f5f5f5;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        /* Charts */
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .chart-title {
+            font-size: 1.3rem;
+            color: #2d5016;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .simple-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 1rem;
+            height: 200px;
+            padding: 1rem 0;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(180deg, #4a7c2c, #2d5016);
+            border-radius: 6px 6px 0 0;
+            position: relative;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .chart-bar:hover {
+            opacity: 0.8;
+            transform: translateY(-5px);
+        }
+
+        .chart-label {
+            text-align: center;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .chart-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-weight: bold;
+            color: #2d5016;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                overflow: hidden;
+            }
+
+            .sidebar.mobile-open {
+                width: 260px;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: 0.5rem;
+            }
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #4a7c2c, #2d5016);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 99;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                🌿 PlantWorld
+            </div>
+            <div class="sidebar-subtitle">Admin Dashboard</div>
+        </div>
+        <div class="sidebar-menu">
+            <div class="menu-item active" onclick="showSection('dashboard')">
+                <span class="menu-icon">📊</span>
+                <span>Dashboard</span>
+            </div>
+            <div class="menu-item" onclick="showSection('products')">
+                <span class="menu-icon">🌱</span>
+                <span>Products</span>
+                <span class="badge" id="productCount">0</span>
+            </div>
+            <div class="menu-item" onclick="showSection('orders')">
+                <span class="menu-icon">📦</span>
+                <span>Orders</span>
+                <span class="badge" id="orderCount">0</span>
+            </div>
+            <div class="menu-item" onclick="showSection('customers')">
+                <span class="menu-icon">👥</span>
+                <span>Customers</span>
+            </div>
+            <div class="menu-item" onclick="showSection('inventory')">
+                <span class="menu-icon">📋</span>
+                <span>Inventory</span>
+            </div>
+            <div class="menu-item" onclick="showSection('analytics')">
+                <span class="menu-icon">📈</span>
+                <span>Analytics</span>
+            </div>
+            <div class="menu-item" onclick="showSection('settings')">
+                <span class="menu-icon">⚙️</span>
+                <span>Settings</span>
+            </div>
+            <div class="menu-item" onclick="viewStorefront()">
+                <span class="menu-icon">🛒</span>
+                <span>View Store</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Header -->
+        <div class="top-header">
+            <div class="header-title" id="pageTitle">Dashboard</div>
+            <div class="header-actions">
+                <div class="user-info">
+                    <div class="user-avatar">👤</div>
+                    <div>
+                        <div style="font-weight: 600;">Admin User</div>
+                        <div style="font-size: 0.85rem; color: #666;">admin@plantworld.com</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div class="content-section active" id="dashboard">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">💰</div>
+                    <div class="stat-info">
+                        <h3 id="totalRevenue">$0</h3>
+                        <p>Total Revenue</p>
+                    </div>
+                    <div class="stat-change up">+12%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">📦</div>
+                    <div class="stat-info">
+                        <h3 id="totalOrders">0</h3>
+                        <p>Total Orders</p>
+                    </div>
+                    <div class="stat-change up">+8%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">🌱</div>
+                    <div class="stat-info">
+                        <h3 id="totalProducts">0</h3>
+                        <p>Total Products</p>
+                    </div>
+                    <div class="stat-change up">+3</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">👥</div>
+                    <div class="stat-info">
+                        <h3 id="totalCustomers">0</h3>
+                        <p>Total Customers</p>
+                    </div>
+                    <div class="stat-change up">+15%</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-title">Sales Overview (Last 7 Days)</div>
+                <div class="simple-chart" id="salesChart"></div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h3 style="color: #2d5016;">Recent Orders</h3>
+                    <button class="btn btn-primary" onclick="showSection('orders')">View All</button>
+                </div>
+                <div id="recentOrdersTable"></div>
+            </div>
+        </div>
+
+        <!-- Products Section -->
+        <div class="content-section" id="products">
+            <div class="table-container">
+                <div class="table-header">
+                    <input type="search" class="search-box" placeholder="🔍 Search products..." onkeyup="searchProducts(this.value)">
+                    <button class="btn btn-primary" onclick="openProductModal()">
+                        ➕ Add New Product
+                    </button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Orders Section -->
+        <div class="content-section" id="orders">
+            <div class="table-container">
+                <div class="table-header">
+                    <input type="search" class="search-box" placeholder="🔍 Search orders..." onkeyup="searchOrders(this.value)">
+                    <select onchange="filterOrders(this.value)" style="padding: 0.7rem; border: 2px solid #e0e0e0; border-radius: 6px;">
+                        <option value="all">All Orders</option>
+                        <option value="pending">Pending</option>
+                        <option value="processing">Processing</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Date</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Customers Section -->
+        <div class="content-section" id="customers">
+            <div class="table-container">
+                <div class="table-header">
+                    <input type="search" class="search-box" placeholder="🔍 Search customers...">
+                    <button class="btn btn-primary">➕ Add Customer</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Email</th>
+                            <th>Orders</th>
+                            <th>Total Spent</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="customersTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Inventory Section -->
+        <div class="content-section" id="inventory">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon green">✅</div>
+                    <div class="stat-info">
+                        <h3 id="inStock">0</h3>
+                        <p>In Stock</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">⚠️</div>
+                    <div class="stat-info">
+                        <h3 id="lowStock">0</h3>
+                        <p>Low Stock</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue">❌</div>
+                    <div class="stat-info">
+                        <h3 id="outOfStock">0</h3>
+                        <p>Out of Stock</p>
+                    </div>
+                </div>
+            </div>
+            <div class="table-container">
+                <div class="table-header">
+                    <h3 style="color: #2d5016;">Inventory Status</h3>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>SKU</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventoryTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Analytics Section -->
+        <div class="content-section" id="analytics">
+            <div class="chart-container">
+                <div class="chart-title">Monthly Revenue</div>
+                <div class="simple-chart" id="revenueChart"></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Top Selling Products</div>
+                <div id="topProductsChart"></div>
+            </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div class="content-section" id="settings">
+            <div class="table-container">
+                <h3 style="color: #2d5016; margin-bottom: 1.5rem;">Store Settings</h3>
+                <div class="form-group">
+                    <label>Store Name</label>
+                    <input type="text" value="PlantWorld Global" id="storeName">
+                </div>
+                <div class="form-group">
+                    <label>Store Email</label>
+                    <input type="email" value="support@plantworld.com">
+                </div>
+                <div class="form-group">
+                    <label>Currency</label>
+                    <select>
+                        <option>USD ($)</option>
+                        <option>EUR (€)</option>
+                        <option>GBP (£)</option>
+                        <option>LKR (Rs)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Store Description</label>
+                    <textarea>Your trusted global marketplace for premium ornamental plants</textarea>
+                </div>
+                <button class="btn btn-primary">💾 Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Add New Product</div>
+                <button class="close-modal" onclick="closeProductModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="productForm" onsubmit="saveProduct(event)">
+                    <div class="form-group">
+                        <label>Product Name *</label>
+                        <input type="text" id="productName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Latin Name</label>
+                        <input type="text" id="productLatinName">
+                    </div>
+                    <div class="form-group">
+                        <label>Category *</label>
+                        <select id="productCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="flowering">Flowering Plants</option>
+                            <option value="foliage">Foliage Plants</option>
+                            <option value="succulents">Succulents</option>
+                            <option value="palms">Palms</option>
+                            <option value="bonsai">Bonsai</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Region</label>
+                        <select id="productRegion">
+                            <option value="tropical">Tropical</option>
+                            <option value="mediterranean">Mediterranean</option>
+                            <option value="asian">Asian</option>
+                            <option value="european">European</option>
+                            <option value="american">American</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Origin Country</label>
+                        <input type="text" id="productOrigin" placeholder="e.g., 🇯🇵 Japan">
+                    </div>
+                    <div class="form-group">
+                        <label>Price (USD) *</label>
+                        <input type="number" id="productPrice" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Stock Quantity *</label>
+                        <input type="number" id="productStock" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Icon/Emoji</label>
+                        <input type="text" id="productIcon" placeholder="🌿">
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="productDescription"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeProductModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="document.getElementById('productForm').requestSubmit()">
+                    💾 Save Product
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" onclick="toggleMobileSidebar()">☰</button>
+
+    <script>
+        // Database Simulation (Using localStorage)
+        const DB = {
+            products: 'plantworld_products',
+            orders: 'plantworld_orders',
+            customers: 'plantworld_customers',
+            
+            get: function(key) {
+                const data = localStorage.getItem(key);
+                return data ? JSON.parse(data) : [];
+            },
+            
+            set: function(key, value) {
+                localStorage.setItem(key, JSON.stringify(value));
+            },
+            
+            add: function(key, item) {
+                const data = this.get(key);
+                data.push(item);
+                this.set(key, data);
+                return item;
+            },
+            
+            update: function(key, id, updatedItem) {
+                const data = this.get(key);
+                const index = data.findIndex(item => item.id === id);
+                if (index !== -1) {
+                    data[index] = { ...data[index], ...updatedItem };
+                    this.set(key, data);
+                }
+            },
+            
+            delete: function(key, id) {
+                const data = this.get(key);
+                const filtered = data.filter(item => item.id !== id);
+                this.set(key, filtered);
+            }
+        };
+
+        // Initialize sample data if empty
+        function initializeSampleData() {
+            if (DB.get(DB.products).length === 0) {
+                const sampleProducts = [
+                    {
+                        id: 1,
+                        name: "Bird of Paradise",
+                        latinName: "Strelitzia reginae",
+                        category: "flowering",
+                        region: "tropical",
+                        origin: "🇿🇦 South Africa",
+                        price: 89.99,
+                        stock: 25,
+                        icon: "🦜",
+                        status: "published"
+                    },
+                    {
+                        id: 2,
+                        name: "Japanese Maple",
+                        latinName: "Acer palmatum",
+                        category: "bonsai",
+                        region: "asian",
+                        origin: "🇯🇵 Japan",
+                        price: 149.99,
+                        stock: 15,
+                        icon: "🍁",
+                        status: "published"
+                    },
+                    {
+                        id: 3,
+                        name: "Monstera Deliciosa",
+                        latinName: "Monstera deliciosa",
+                        category: "foliage",
+                        region: "tropical",
+                        origin: "🇲🇽 Mexico",
+                        price: 45.99,
+                        stock: 50,
+                        icon: "🌿",
+                        status: "published"
+                    },
+                    {
+                        id: 4,
+                        name: "Lavender",
+                        latinName: "Lavandula angustifolia",
+                        category: "flowering",
+                        region: "mediterranean",
+                        origin: "🇫🇷 France",
+                        price: 24.99,
+                        stock: 100,
+                        icon: "💜",
+                        status: "published"
+                    },
+                    {
+                        id: 5,
+                        name: "Jade Plant",
+                        latinName: "Crassula ovata",
+                        category: "succulents",
+                        region: "tropical",
+                        origin: "🇿🇦 South Africa",
+                        price: 34.99,
+                        stock: 5,
+                        icon: "🪴",
+                        status: "published"
+                    }
+                ];
+                DB.set(DB.products, sampleProducts);
+            }
+
+            if (DB.get(DB.orders).length === 0) {
+                const sampleOrders = [
+                    {
+                        id: 1001,
+                        customer: "John Smith",
+                        email: "john@email.com",
+                        date: "2024-02-05",
+                        total: 179.98,
+                        status: "completed",
+                        items: 2
+                    },
+                    {
+                        id: 1002,
+                        customer: "Sarah Johnson",
+                        email: "sarah@email.com",
+                        date: "2024-02-06",
+                        total: 89.99,
+                        status: "processing",
+                        items: 1
+                    },
+                    {
+                        id: 1003,
+                        customer: "Mike Wilson",
+                        email: "mike@email.com",
+                        date: "2024-02-06",
+                        total: 124.97,
+                        status: "pending",
+                        items: 3
+                    }
+                ];
+                DB.set(DB.orders, sampleOrders);
+            }
+
+            if (DB.get(DB.customers).length === 0) {
+                const sampleCustomers = [
+                    {
+                        id: 1,
+                        name: "John Smith",
+                        email: "john@email.com",
+                        orders: 5,
+                        totalSpent: 450.00,
+                        joined: "2024-01-15"
+                    },
+                    {
+                        id: 2,
+                        name: "Sarah Johnson",
+                        email: "sarah@email.com",
+                        orders: 3,
+                        totalSpent: 290.00,
+                        joined: "2024-01-20"
+                    },
+                    {
+                        id: 3,
+                        name: "Mike Wilson",
+                        email: "mike@email.com",
+                        orders: 7,
+                        totalSpent: 680.00,
+                        joined: "2024-01-10"
+                    }
+                ];
+                DB.set(DB.customers, sampleCustomers);
+            }
+        }
+
+        // Navigation
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update menu items
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // Update page title
+            const titles = {
+                dashboard: 'Dashboard',
+                products: 'Products',
+                orders: 'Orders',
+                customers: 'Customers',
+                inventory: 'Inventory',
+                analytics: 'Analytics',
+                settings: 'Settings'
+            };
+            document.getElementById('pageTitle').textContent = titles[sectionId];
+            
+            // Load section data
+            if (sectionId === 'products') loadProducts();
+            if (sectionId === 'orders') loadOrders();
+            if (sectionId === 'customers') loadCustomers();
+            if (sectionId === 'inventory') loadInventory();
+            if (sectionId === 'analytics') loadAnalytics();
+            
+            // Close mobile sidebar
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('mobile-open');
+            }
+        }
+
+        // Load Products
+        function loadProducts() {
+            const products = DB.get(DB.products);
+            const tbody = document.getElementById('productsTableBody');
+            
+            tbody.innerHTML = products.map(product => `
+                <tr>
+                    <td>
+                        <div class="product-info">
+                            <div class="product-image">${product.icon}</div>
+                            <div>
+                                <div style="font-weight: 600;">${product.name}</div>
+                                <div style="font-size: 0.85rem; color: #666; font-style: italic;">${product.latinName}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${product.category}</td>
+                    <td>$${product.price.toFixed(2)}</td>
+                    <td>${product.stock}</td>
+                    <td><span class="status-badge ${product.status}">${product.status}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn edit" onclick="editProduct(${product.id})">✏️ Edit</button>
+                            <button class="action-btn delete" onclick="deleteProduct(${product.id})">🗑️ Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+            
+            updateProductCount();
+        }
+
+        // Load Orders
+        function loadOrders() {
+            const orders = DB.get(DB.orders);
+            const tbody = document.getElementById('ordersTableBody');
+            
+            tbody.innerHTML = orders.map(order => `
+                <tr>
+                    <td>#${order.id}</td>
+                    <td>
+                        <div>${order.customer}</div>
+                        <div style="font-size: 0.85rem; color: #666;">${order.email}</div>
+                    </td>
+                    <td>${order.date}</td>
+                    <td>$${order.total.toFixed(2)}</td>
+                    <td><span class="status-badge ${order.status}">${order.status}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn view" onclick="viewOrder(${order.id})">👁️ View</button>
+                            <button class="action-btn edit" onclick="updateOrderStatus(${order.id})">📝 Update</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+            
+            updateOrderCount();
+        }
+
+        // Load Customers
+        function loadCustomers() {
+            const customers = DB.get(DB.customers);
+            const tbody = document.getElementById('customersTableBody');
+            
+            tbody.innerHTML = customers.map(customer => `
+                <tr>
+                    <td>
+                        <div style="font-weight: 600;">${customer.name}</div>
+                    </td>
+                    <td>${customer.email}</td>
+                    <td>${customer.orders}</td>
+                    <td>$${customer.totalSpent.toFixed(2)}</td>
+                    <td>${customer.joined}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn view" onclick="viewCustomer(${customer.id})">👁️ View</button>
+                            <button class="action-btn edit" onclick="editCustomer(${customer.id})">✏️ Edit</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Load Inventory
+        function loadInventory() {
+            const products = DB.get(DB.products);
+            const tbody = document.getElementById('inventoryTableBody');
+            
+            let inStock = 0, lowStock = 0, outOfStock = 0;
+            
+            products.forEach(product => {
+                if (product.stock === 0) outOfStock++;
+                else if (product.stock < 10) lowStock++;
+                else inStock++;
+            });
+            
+            document.getElementById('inStock').textContent = inStock;
+            document.getElementById('lowStock').textContent = lowStock;
+            document.getElementById('outOfStock').textContent = outOfStock;
+            
+            tbody.innerHTML = products.map(product => {
+                let stockStatus = 'In Stock';
+                let statusClass = 'published';
+                if (product.stock === 0) {
+                    stockStatus = 'Out of Stock';
+                    statusClass = 'cancelled';
+                } else if (product.stock < 10) {
+                    stockStatus = 'Low Stock';
+                    statusClass = 'pending';
+                }
+                
+                return `
+                    <tr>
+                        <td>
+                            <div class="product-info">
+                                <div class="product-image">${product.icon}</div>
+                                <div>${product.name}</div>
+                            </div>
+                        </td>
+                        <td>SKU-${product.id}</td>
+                        <td>${product.stock} units</td>
+                        <td><span class="status-badge ${statusClass}">${stockStatus}</span></td>
+                        <td>
+                            <button class="action-btn edit" onclick="updateStock(${product.id})">📦 Update Stock</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Load Analytics
+        function loadAnalytics() {
+            // Revenue Chart
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+            const revenues = [4500, 5200, 4800, 6100, 5900, 7200];
+            
+            const revenueChart = document.getElementById('revenueChart');
+            const maxRevenue = Math.max(...revenues);
+            
+            revenueChart.innerHTML = months.map((month, i) => {
+                const height = (revenues[i] / maxRevenue) * 100;
+                return `
+                    <div style="flex: 1; text-align: center;">
+                        <div class="chart-bar" style="height: ${height}%">
+                            <div class="chart-value">$${revenues[i]}</div>
+                        </div>
+                        <div class="chart-label">${month}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Top Products
+            const products = DB.get(DB.products).slice(0, 5);
+            const topProductsChart = document.getElementById('topProductsChart');
+            
+            topProductsChart.innerHTML = products.map(product => `
+                <div style="padding: 1rem; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center;">
+                    <div class="product-info">
+                        <div class="product-image">${product.icon}</div>
+                        <div>
+                            <div style="font-weight: 600;">${product.name}</div>
+                            <div style="font-size: 0.85rem; color: #666;">${Math.floor(Math.random() * 100) + 20} sales</div>
+                        </div>
+                    </div>
+                    <div style="font-weight: bold; color: #4a7c2c;">$${(product.price * (Math.floor(Math.random() * 50) + 10)).toFixed(2)}</div>
+                </div>
+            `).join('');
+        }
+
+        // Update Dashboard
+        function updateDashboard() {
+            const products = DB.get(DB.products);
+            const orders = DB.get(DB.orders);
+            const customers = DB.get(DB.customers);
+            
+            // Update stats
+            document.getElementById('totalProducts').textContent = products.length;
+            document.getElementById('totalOrders').textContent = orders.length;
+            document.getElementById('totalCustomers').textContent = customers.length;
+            
+            const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
+            document.getElementById('totalRevenue').textContent = `$${totalRevenue.toFixed(2)}`;
+            
+            // Sales Chart
+            const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            const sales = [1200, 1900, 1500, 2400, 2100, 2800, 3200];
+            const maxSale = Math.max(...sales);
+            
+            const salesChart = document.getElementById('salesChart');
+            salesChart.innerHTML = days.map((day, i) => {
+                const height = (sales[i] / maxSale) * 100;
+                return `
+                    <div style="flex: 1; text-align: center;">
+                        <div class="chart-bar" style="height: ${height}%">
+                            <div class="chart-value">$${sales[i]}</div>
+                        </div>
+                        <div class="chart-label">${day}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Recent Orders
+            const recentOrders = orders.slice(0, 5);
+            document.getElementById('recentOrdersTable').innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${recentOrders.map(order => `
+                            <tr>
+                                <td>#${order.id}</td>
+                                <td>${order.customer}</td>
+                                <td>$${order.total.toFixed(2)}</td>
+                                <td><span class="status-badge ${order.status}">${order.status}</span></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Product Modal Functions
+        let editingProductId = null;
+
+        function openProductModal(productId = null) {
+            editingProductId = productId;
+            const modal = document.getElementById('productModal');
+            modal.classList.add('active');
+            
+            if (productId) {
+                const product = DB.get(DB.products).find(p => p.id === productId);
+                document.getElementById('modalTitle').textContent = 'Edit Product';
+                document.getElementById('productName').value = product.name;
+                document.getElementById('productLatinName').value = product.latinName;
+                document.getElementById('productCategory').value = product.category;
+                document.getElementById('productRegion').value = product.region;
+                document.getElementById('productOrigin').value = product.origin;
+                document.getElementById('productPrice').value = product.price;
+                document.getElementById('productStock').value = product.stock;
+                document.getElementById('productIcon').value = product.icon;
+                document.getElementById('productDescription').value = product.description || '';
+            } else {
+                document.getElementById('modalTitle').textContent = 'Add New Product';
+                document.getElementById('productForm').reset();
+            }
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').classList.remove('active');
+            editingProductId = null;
+        }
+
+        function saveProduct(event) {
+            event.preventDefault();
+            
+            const productData = {
+                name: document.getElementById('productName').value,
+                latinName: document.getElementById('productLatinName').value,
+                category: document.getElementById('productCategory').value,
+                region: document.getElementById('productRegion').value,
+                origin: document.getElementById('productOrigin').value,
+                price: parseFloat(document.getElementById('productPrice').value),
+                stock: parseInt(document.getElementById('productStock').value),
+                icon: document.getElementById('productIcon').value || '🌿',
+                description: document.getElementById('productDescription').value,
+                status: 'published'
+            };
+            
+            if (editingProductId) {
+                DB.update(DB.products, editingProductId, productData);
+                alert('✅ Product updated successfully!');
+            } else {
+                const products = DB.get(DB.products);
+                const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+                DB.add(DB.products, { id: newId, ...productData });
+                alert('✅ Product added successfully!');
+            }
+            
+            closeProductModal();
+            loadProducts();
+            updateDashboard();
+        }
+
+        function editProduct(productId) {
+            openProductModal(productId);
+        }
+
+        function deleteProduct(productId) {
+            if (confirm('Are you sure you want to delete this product?')) {
+                DB.delete(DB.products, productId);
+                alert('✅ Product deleted successfully!');
+                loadProducts();
+                updateDashboard();
+            }
+        }
+
+        // Search Functions
+        function searchProducts(query) {
+            const products = DB.get(DB.products);
+            const filtered = products.filter(p => 
+                p.name.toLowerCase().includes(query.toLowerCase()) ||
+                p.latinName.toLowerCase().includes(query.toLowerCase())
+            );
+            
+            const tbody = document.getElementById('productsTableBody');
+            tbody.innerHTML = filtered.map(product => `
+                <tr>
+                    <td>
+                        <div class="product-info">
+                            <div class="product-image">${product.icon}</div>
+                            <div>
+                                <div style="font-weight: 600;">${product.name}</div>
+                                <div style="font-size: 0.85rem; color: #666; font-style: italic;">${product.latinName}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${product.category}</td>
+                    <td>$${product.price.toFixed(2)}</td>
+                    <td>${product.stock}</td>
+                    <td><span class="status-badge ${product.status}">${product.status}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn edit" onclick="editProduct(${product.id})">✏️ Edit</button>
+                            <button class="action-btn delete" onclick="deleteProduct(${product.id})">🗑️ Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function searchOrders(query) {
+            const orders = DB.get(DB.orders);
+            const filtered = orders.filter(o => 
+                o.id.toString().includes(query) ||
+                o.customer.toLowerCase().includes(query.toLowerCase())
+            );
+            
+            const tbody = document.getElementById('ordersTableBody');
+            tbody.innerHTML = filtered.map(order => `
+                <tr>
+                    <td>#${order.id}</td>
+                    <td>
+                        <div>${order.customer}</div>
+                        <div style="font-size: 0.85rem; color: #666;">${order.email}</div>
+                    </td>
+                    <td>${order.date}</td>
+                    <td>$${order.total.toFixed(2)}</td>
+                    <td><span class="status-badge ${order.status}">${order.status}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn view" onclick="viewOrder(${order.id})">👁️ View</button>
+                            <button class="action-btn edit" onclick="updateOrderStatus(${order.id})">📝 Update</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterOrders(status) {
+            const orders = DB.get(DB.orders);
+            const filtered = status === 'all' ? orders : orders.filter(o => o.status === status);
+            
+            const tbody = document.getElementById('ordersTableBody');
+            tbody.innerHTML = filtered.map(order => `
+                <tr>
+                    <td>#${order.id}</td>
+                    <td>
+                        <div>${order.customer}</div>
+                        <div style="font-size: 0.85rem; color: #666;">${order.email}</div>
+                    </td>
+                    <td>${order.date}</td>
+                    <td>$${order.total.toFixed(2)}</td>
+                    <td><span class="status-badge ${order.status}">${order.status}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn view" onclick="viewOrder(${order.id})">👁️ View</button>
+                            <button class="action-btn edit" onclick="updateOrderStatus(${order.id})">📝 Update</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Update Counts
+        function updateProductCount() {
+            document.getElementById('productCount').textContent = DB.get(DB.products).length;
+        }
+
+        function updateOrderCount() {
+            document.getElementById('orderCount').textContent = DB.get(DB.orders).length;
+        }
+
+        // Other Functions
+        function viewOrder(orderId) {
+            const order = DB.get(DB.orders).find(o => o.id === orderId);
+            alert(`Order Details:\n\nOrder ID: #${order.id}\nCustomer: ${order.customer}\nEmail: ${order.email}\nDate: ${order.date}\nTotal: $${order.total}\nStatus: ${order.status}`);
+        }
+
+        function updateOrderStatus(orderId) {
+            const newStatus = prompt('Enter new status (pending/processing/completed/cancelled):');
+            if (newStatus) {
+                DB.update(DB.orders, orderId, { status: newStatus });
+                loadOrders();
+                alert('✅ Order status updated!');
+            }
+        }
+
+        function viewCustomer(customerId) {
+            const customer = DB.get(DB.customers).find(c => c.id === customerId);
+            alert(`Customer Details:\n\nName: ${customer.name}\nEmail: ${customer.email}\nOrders: ${customer.orders}\nTotal Spent: $${customer.totalSpent}\nJoined: ${customer.joined}`);
+        }
+
+        function editCustomer(customerId) {
+            alert('Edit customer functionality coming soon!');
+        }
+
+        function updateStock(productId) {
+            const newStock = prompt('Enter new stock quantity:');
+            if (newStock !== null) {
+                DB.update(DB.products, productId, { stock: parseInt(newStock) });
+                loadInventory();
+                alert('✅ Stock updated!');
+            }
+        }
+
+        function viewStorefront() {
+            window.open('ornamental-plants-marketplace.html', '_blank');
+        }
+
+        function toggleMobileSidebar() {
+            document.getElementById('sidebar').classList.toggle('mobile-open');
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', function() {
+            initializeSampleData();
+            updateDashboard();
+            loadProducts();
+            updateProductCount();
+            updateOrderCount();
+        });
+    </script>
+</body>
+</html>
